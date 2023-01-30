@@ -28,6 +28,6 @@ class MySubscriberNode(DTROS):
             print(f'right reading:{msg.data}')
 
 
-if __name__ == '__main__':
-    node = MySubscriberNode('my_subscriber_node')
-    rospy.spin()
+# if __name__ == '__main__':
+#     node = MySubscriberNode('my_subscriber_node')
+#     rospy.spin()
