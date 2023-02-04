@@ -1,5 +1,7 @@
 import math
 
+TICK_TO_METER = 0.0014
+
 def to_sec(time):
     return time.nsecs * 1e-9 + time.secs
 
@@ -58,25 +60,30 @@ class WheelPositionIntegration:
         
         while len(self.leftList) >= 1 and len(self.rightList) >= 1:
             oldt = self.time
+            newt = max(self.leftList[-1][0], self.rightList[-1][0])
+            passt = (newt - oldt) * (2 / (len(self.leftList) + len(self.rightList)))
             leftTime, left = self.leftList[0]
             rightTime, right = self.rightList[0]
-            if oldt >= leftTime:
-                del self.leftList[0]
-                continue
-            if oldt >= rightTime:
-                del self.rightList[0]
-                continue
+            # if oldt >= leftTime:
+            #     del self.leftList[0]
+            #     continue
+            # if oldt >= rightTime:
+            #     del self.rightList[0]
+            #     continue
+            del self.leftList[0]
+            del self.rightList[0]
 
-            leftdt = leftTime - oldt
-            rightdt = rightTime - oldt
-            if leftTime < rightTime:
-                q = leftdt / rightdt
-                right = self.right * (1 - q) + right * q
-                self.advance_time(leftTime, left, right)
-            else:
-                q = rightdt / leftdt
-                left = self.left * (1 - q) + left * q
-                self.advance_time(rightTime, left, right)
+            # leftdt = leftTime - oldt
+            # rightdt = rightTime - oldt
+            # if leftTime < rightTime:
+            #     q = leftdt / rightdt
+            #     right = self.right * (1 - q) + right * q
+            #     self.advance_time(leftTime, left, right)
+            # else:
+            #     q = rightdt / leftdt
+            #     left = self.left * (1 - q) + left * q
+            #     self.advance_time(rightTime, left, right)
+            self.advance_time(oldt + passt, left, right)
     
     def advance_time(self, newt, newleft, newright):
         # dt = newt - self.time
@@ -97,3 +104,6 @@ class WheelPositionIntegration:
 
     def get_state(self):
         return self.x, self.y, self.theta
+
+    def get_state_meters(self):
+        return self.x * TICK_TO_METER, self.y * TICK_TO_METER, self.theta
