@@ -22,17 +22,24 @@ class PilotNode(DTROS):
         self.rate = rospy.Rate(60)  # in Hz
         self.wheel_integration = wheel_integration
         self.speed = 0.8
+        self.count = 0
+        self.LEFT_TICKS = None
+        self.RIGHT_TICKS = None
+        self.initial_left = None
+        self.initial_right = None
     
-    def left_callback(self, msg):
-        self.wheel_integration.update_left(msg.data, msg.header.stamp)
-    
+    def left_callback(self, msg):    
+        if not self.initial_left:
+            self.initial_left = msg.data	
+        self.LEFT_TICKS = msg.data - self.initial_left
     def right_callback(self, msg):
-        self.wheel_integration.update_right(msg.data, msg.header.stamp)
+        if not self.initial_right:
+            self.initial_right = msg.data   	
+        self.RIGHT_TICKS = msg.data - self.initial_right
 
     def run(self):
         DISTANCE = 500
         while not rospy.is_shutdown():
-
             self.driveForTime(0, 0, 3)
             self.driveForDistance(DISTANCE)
             self.driveBackwardForDistance(DISTANCE)
@@ -48,9 +55,14 @@ class PilotNode(DTROS):
             self.driveForTime(0.5, 1.5, 8)
             self.driveForTime(0, 0, 2)
             break
+        rospy.signal_shutdown("finished")
 
     
     def drive(self, left_speed, right_speed):
+        self.count+=1
+        if self.count %  == 0:
+            self.wheel_integration.update_left(self.LEFT_TICKS, rospy.get_rostime())    
+            self.wheel_integration.update_right(self.RIGHT_TICKS, rospy.get_rostime())
         msg = WheelsCmdStamped()
         msg.vel_left = left_speed
         msg.vel_right = right_speed
@@ -165,8 +177,12 @@ class PilotNode(DTROS):
 
 
 if __name__ == '__main__':
-    print(f'running on robot {HOST_NAME}')
-    node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(29))
-    node.run()
-    rospy.spin()
+    try:
+        print(f'running on robot {HOST_NAME}')
+        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(29))
+        node.run()
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
+
 

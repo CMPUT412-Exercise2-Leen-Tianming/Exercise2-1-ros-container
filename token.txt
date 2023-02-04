@@ -1,0 +1,4 @@
+dt1-3nT8KSoxVh4MkRDhU8CRuJvaSAmYarJCqn9QLkZfy9nbDHE-43dzqWFnWd8KBa1yev1g3UKnzVxZkkTbfQqjMWWzapr62szRu2xJesDao8sq2oUUav
+
+scp *.bag duckie@csc22917.local:~/data.bag
+scp duckie@csc22917.local:~/data.bag ./data.bag
