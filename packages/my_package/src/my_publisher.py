@@ -135,12 +135,12 @@ class PilotNode(DTROS):
         curx, cury, curtheta = self.wheel_integration.get_state_meters()
         target_theta = curtheta + to_adjust
         if to_adjust > 0:
-            while curtheta < target_theta - 0.16:
+            while curtheta < target_theta - 0.21:
                 self.drive(-self.speed, self.speed)
                 curx, cury, curtheta = self.wheel_integration.get_state_meters()
                 self.rate.sleep()
         else:
-            while curtheta > target_theta + 0.16:
+            while curtheta > target_theta + 0.21:
                 self.drive(self.speed, -self.speed)
                 curx, cury, curtheta = self.wheel_integration.get_state_meters()
                 self.rate.sleep()
@@ -190,7 +190,7 @@ class PilotNode(DTROS):
 if __name__ == '__main__':
     try:
         print(f'running on robot {HOST_NAME}')
-        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(30.5, 0, 0, math.pi / 2))
+        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(32, 0, 0, math.pi / 2))
         node.run()
         rospy.spin()
     except rospy.ROSInterruptException:
