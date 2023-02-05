@@ -71,7 +71,7 @@ class PilotNode(DTROS):
         msg.vel_right = right_speed
         self.pub.publish(msg)
         x, y, theta = self.wheel_integration.get_state_meters()
-        print(f'x{:.3f} y{y:.3f} theta{theta:.3f}, decision: vleft{left_speed:.3f}, vright{right_speed:.3f}')
+        print(f'x{x:.3f} y{y:.3f} theta{theta:.3f}, decision: vleft{left_speed:.3f}, vright{right_speed:.3f}')
 
     
     def driveForTime(self, left_speed, right_speed, tsec):
@@ -90,7 +90,7 @@ class PilotNode(DTROS):
                 break
 
             to_target = math.atan2(dy, dx)
-            to_adjust = math.fmod((to_target - curtheta) + math.pi, math.pi * 2) - math.pi
+            to_adjust = math.remainder((to_target - curtheta) + math.pi, math.pi * 2) - math.pi
             OFF_THRESHOLD = 0.9
             if abs(to_adjust) > OFF_THRESHOLD:
                 print('angle is off, adjust rotation')
@@ -115,7 +115,7 @@ class PilotNode(DTROS):
                 break
 
             to_target = math.atan2(dy, dx)
-            to_adjust = math.fmod(to_target - curtheta, math.pi * 2) - math.pi
+            to_adjust = math.remainder(to_target - curtheta, math.pi * 2) - math.pi
             OFF_THRESHOLD = 0.9
             if abs(to_adjust) > OFF_THRESHOLD:
                 print('angle is off, adjust rotation')
@@ -163,7 +163,7 @@ class PilotNode(DTROS):
     
     def adjustToTargetRotation(self, adjust_target_radian):
         curx, cury, curtheta = self.wheel_integration.get_state_meters()
-        to_adjust = math.fmod((adjust_target_radian - curtheta) + math.pi, math.pi * 2) - math.pi
+        to_adjust = math.remainder((adjust_target_radian - curtheta) + math.pi, math.pi * 2) - math.pi
         if abs(to_adjust) > 0.05:
             self.adjustRotation(to_adjust)
 
