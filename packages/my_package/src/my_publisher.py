@@ -44,6 +44,7 @@ class PilotNode(DTROS):
         while not rospy.is_shutdown():
             self.driveForTime(0, 0, 4)
             self.driveForDistance(DISTANCE)
+            self.stop_momentum()
             self.driveBackwardForDistance(DISTANCE)
             self.driveForTime(0, 0, 4)
             self.adjustRotation(math.pi / 2)
@@ -90,7 +91,7 @@ class PilotNode(DTROS):
                 break
 
             to_target = math.atan2(dy, dx)
-            to_adjust = math.remainder((to_target - curtheta) + math.pi, math.pi * 2) - math.pi
+            to_adjust = ((to_target - curtheta) + math.pi) % (math.pi * 2) - math.pi
             OFF_THRESHOLD = 0.9
             if abs(to_adjust) > OFF_THRESHOLD:
                 print('angle is off, adjust rotation')
@@ -115,7 +116,7 @@ class PilotNode(DTROS):
                 break
 
             to_target = math.atan2(dy, dx)
-            to_adjust = math.remainder(to_target - curtheta, math.pi * 2) - math.pi
+            to_adjust = (to_target - curtheta) % (math.pi * 2) - math.pi
             OFF_THRESHOLD = 0.9
             if abs(to_adjust) > OFF_THRESHOLD:
                 print('angle is off, adjust rotation')
@@ -134,12 +135,12 @@ class PilotNode(DTROS):
         curx, cury, curtheta = self.wheel_integration.get_state_meters()
         target_theta = curtheta + to_adjust
         if to_adjust > 0:
-            while curtheta < target_theta - 0.13:
+            while curtheta < target_theta - 0.16:
                 self.drive(-self.speed, self.speed)
                 curx, cury, curtheta = self.wheel_integration.get_state_meters()
                 self.rate.sleep()
         else:
-            while curtheta > target_theta + 0.13:
+            while curtheta > target_theta + 0.16:
                 self.drive(self.speed, -self.speed)
                 curx, cury, curtheta = self.wheel_integration.get_state_meters()
                 self.rate.sleep()
@@ -163,7 +164,7 @@ class PilotNode(DTROS):
     
     def adjustToTargetRotation(self, adjust_target_radian):
         curx, cury, curtheta = self.wheel_integration.get_state_meters()
-        to_adjust = math.remainder((adjust_target_radian - curtheta) + math.pi, math.pi * 2) - math.pi
+        to_adjust = ((adjust_target_radian - curtheta) + math.pi) % (math.pi * 2) - math.pi
         if abs(to_adjust) > 0.05:
             self.adjustRotation(to_adjust)
 
@@ -189,7 +190,7 @@ class PilotNode(DTROS):
 if __name__ == '__main__':
     try:
         print(f'running on robot {HOST_NAME}')
-        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(35))
+        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(30.5, 0, 0, math.pi / 2))
         node.run()
         rospy.spin()
     except rospy.ROSInterruptException:
