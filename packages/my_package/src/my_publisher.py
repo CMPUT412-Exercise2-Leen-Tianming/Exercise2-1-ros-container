@@ -6,6 +6,8 @@ from duckietown.dtros import DTROS, NodeType
 from std_msgs.msg import String
 from duckietown_msgs.msg import WheelsCmdStamped
 from duckietown_msgs.msg import WheelEncoderStamped
+from duckietown_msgs.srv import ChangePattern
+from std_msgs.msg import String
 import math
 import wheel_int
 
@@ -28,6 +30,17 @@ class PilotNode(DTROS):
         self.initial_left = None
         self.initial_right = None
     
+    def change_pattern(self, patternStr):
+        rospy.wait_for_service(f'/{HOST_NAME}/led_emitter_node/set_pattern')
+        try:
+            changePatternSrv = rospy.ServiceProxy(f'/{HOST_NAME}/led_emitter_node/set_pattern', ChangePattern)
+            msg = String()
+            msg.data = patternStr
+            changePatternSrv(msg)
+        except rospy.ServiceException as e:
+            print('Service request failed')
+            print(e)
+
     def left_callback(self, msg):
         self.wheel_integration.update_left(msg.data, rospy.get_rostime())
         # if not self.initial_left:
@@ -42,6 +55,7 @@ class PilotNode(DTROS):
     def run(self):
         DISTANCE = 1.25
         while not rospy.is_shutdown():
+            self.change_pattern('RED')
             self.driveForTime(0, 0, 4)
             self.driveForDistance(DISTANCE)
             self.stop_momentum()
