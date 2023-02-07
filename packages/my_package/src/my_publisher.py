@@ -10,6 +10,7 @@ from duckietown_msgs.srv import ChangePattern
 from std_msgs.msg import String
 import math
 import wheel_int
+import time
 
 
 HOST_NAME = os.environ["VEHICLE_NAME"]
@@ -55,22 +56,38 @@ class PilotNode(DTROS):
     def run(self):
         DISTANCE = 1.25
         while not rospy.is_shutdown():
+            t1 = time.time()
             self.change_pattern('RED')
-            self.driveForTime(0, 0, 4)
-            self.driveForDistance(DISTANCE)
-            self.stop_momentum()
-            self.driveBackwardForDistance(DISTANCE)
-            self.driveForTime(0, 0, 4)
-            self.adjustRotation(math.pi / 2)
-            self.driveForTime(0, 0, 2)
-            self.adjustRotation(math.pi / 2)
-            self.driveForTime(0, 0, 2)
-            self.adjustRotation(math.pi / 2)
-            self.driveForTime(0, 0, 2)
-            self.adjustRotation(math.pi / 2)
-            self.driveForTime(0, 0, 4)
-            self.driveForTime(0.25, 0.75, 6)
-            self.driveForTime(0, 0, 2)
+            self.driveForTime(0, 0, 5)
+
+            self.change_pattern('WHITE')
+            self.adjustToTargetRotation(0)
+            self.driveToPoint(1.25, 0)
+            self.adjustToTargetRotation(math.pi / 2)
+            self.driveToPoint(1.25, 1.25)
+            self.adjustToTargetRotation(math.pi)
+            self.driveToPoint(0, 1.25)
+
+            self.change_pattern('RED')
+            self.driveForTime(0, 0, 5)
+
+            # state 3
+            self.change_pattern('BLUE')
+            self.driveToPoint(0, 0)
+            self.adjustToTargetRotation(math.pi / 2)
+
+            self.change_pattern('RED')
+            self.driveForTime(0, 0, 5)
+
+            self.change_pattern('GREEN')
+            self.driveForTime(0.75, 0.25, 6)
+
+            self.driveForTime(0, 0, 5)
+
+            t2 = time.time()
+
+            print('execution time: ' + str(t2 - t1))
+
             break
         rospy.signal_shutdown("finished")
 
