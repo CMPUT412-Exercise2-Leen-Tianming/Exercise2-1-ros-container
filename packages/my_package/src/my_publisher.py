@@ -88,6 +88,10 @@ class PilotNode(DTROS):
 
             t2 = time.time()
 
+            # print the vehicle position and angle
+            x, y, theta = self.wheel_integration.get_state_meters()
+            print(f'final position:\nx{x:.3f} y{y:.3f} theta{theta:.3f}')
+
             print('execution time: ' + str(t2 - t1))
 
             break
@@ -104,8 +108,8 @@ class PilotNode(DTROS):
         msg.vel_left = left_speed
         msg.vel_right = right_speed
         self.pub.publish(msg)
+        
         x, y, theta = self.wheel_integration.get_state_meters()
-
         pose = Pose2DStamped()
         pose.header.t = rospy.get_rostime()
         pose.x = x
