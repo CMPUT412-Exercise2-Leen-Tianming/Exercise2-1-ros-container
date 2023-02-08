@@ -6,6 +6,7 @@ from duckietown.dtros import DTROS, NodeType
 from std_msgs.msg import String
 from duckietown_msgs.msg import WheelsCmdStamped
 from duckietown_msgs.msg import WheelEncoderStamped
+from duckietown_msgs.msg import Pose2DStamped
 from duckietown_msgs.srv import ChangePattern
 from std_msgs.msg import String
 import math
@@ -22,6 +23,7 @@ class PilotNode(DTROS):
         self.sub_left = rospy.Subscriber(f'{HOST_NAME}/left_wheel_encoder_node/tick', WheelEncoderStamped, self.left_callback)
         self.sub_right = rospy.Subscriber(f'{HOST_NAME}/right_wheel_encoder_node/tick', WheelEncoderStamped, self.right_callback)
         self.pub = rospy.Publisher(f'/{HOST_NAME}/wheels_driver_node/wheels_cmd', WheelsCmdStamped, queue_size=10)
+        self.pose_pub = rospy.Publisher(f'/{HOST_NAME}/pose2d', Pose2DStamped, queue_size=10)
         self.rate = rospy.Rate(60)  # in Hz
         self.wheel_integration = wheel_integration
         self.speed = 0.6
@@ -103,7 +105,14 @@ class PilotNode(DTROS):
         msg.vel_right = right_speed
         self.pub.publish(msg)
         x, y, theta = self.wheel_integration.get_state_meters()
-        print(f'x{x:.3f} y{y:.3f} theta{theta:.3f}, decision: vleft{left_speed:.3f}, vright{right_speed:.3f}')
+
+        pose = Pose2DStamped()
+        pose.header.t = rospy.get_rostime()
+        pose.x = x
+        pose.y = y
+        pose.theta = theta
+        self.pose_pub.publish(pose)
+        # print(f'x{x:.3f} y{y:.3f} theta{theta:.3f}, decision: vleft{left_speed:.3f}, vright{right_speed:.3f}')
 
     
     def driveForTime(self, left_speed, right_speed, tsec):
@@ -221,7 +230,7 @@ class PilotNode(DTROS):
 if __name__ == '__main__':
     try:
         print(f'running on robot {HOST_NAME}')
-        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(32, 0, 0, math.pi / 2))
+        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(29, 0, 0, math.pi / 2))
         node.run()
         rospy.spin()
     except rospy.ROSInterruptException:
