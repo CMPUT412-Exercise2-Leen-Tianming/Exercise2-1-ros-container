@@ -17,6 +17,14 @@ import time
 HOST_NAME = os.environ["VEHICLE_NAME"]
 
 
+def clip_0_2pi(rad):
+    return rad % (2 * math.pi)
+
+
+def clip_npi_pi(rad):
+    return (rad + math.pi) % (2 * math.pi) - math.pi
+
+
 class PilotNode(DTROS):
     def __init__(self, node_name, wheel_integration: wheel_int.WheelPositionIntegration):
         super(PilotNode, self).__init__(node_name=node_name, node_type=NodeType.GENERIC)
@@ -114,7 +122,7 @@ class PilotNode(DTROS):
         pose.header.t = rospy.get_rostime()
         pose.x = x
         pose.y = y
-        pose.theta = theta
+        pose.theta = clip_npi_pi(theta)
         self.pose_pub.publish(pose)
         # print(f'x{x:.3f} y{y:.3f} theta{theta:.3f}, decision: vleft{left_speed:.3f}, vright{right_speed:.3f}')
 
@@ -135,7 +143,7 @@ class PilotNode(DTROS):
                 break
 
             to_target = math.atan2(dy, dx)
-            to_adjust = ((to_target - curtheta) + math.pi) % (math.pi * 2) - math.pi
+            to_adjust = clip_npi_pi(to_target - curtheta)
             OFF_THRESHOLD = 0.9
             if abs(to_adjust) > OFF_THRESHOLD:
                 print('angle is off, adjust rotation')
