@@ -242,7 +242,7 @@ class PilotNode(DTROS):
 if __name__ == '__main__':
     try:
         print(f'running on robot {HOST_NAME}')
-        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(29, 0, 0, math.pi / 2))
+        node = PilotNode('my_pilot_node', wheel_int.WheelPositionIntegration(33, 0, 0, math.pi / 2))
         node.run()
         rospy.spin()
     except rospy.ROSInterruptException:
