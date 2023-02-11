@@ -1,6 +1,6 @@
 import math
 
-TICK_TO_METER = 0.0014
+TICK_TO_METER = 0.001582
 
 def to_sec(time):
     return time.nsecs * 1e-9 + time.secs
