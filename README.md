@@ -1,3 +1,12 @@
+Author: Tianming Han and Leen Alzebdeh
+
+The final submission code is on the v2 branch.
+
+To run the code: First boot up the led_emitter_node on the duckiebot, then run this container. The robot should start moving then.
+
+
+
+
 # Template: template-ros
 
 This template provides a boilerplate repository
